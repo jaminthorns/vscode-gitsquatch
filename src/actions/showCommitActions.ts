@@ -41,6 +41,8 @@ export async function showCommitActions(
           tooltip: "Show Commit (Editor)",
           onSelected: async () => {
             const { directory } = repository
+            // TODO: Evaluate whether we should always diff against first parent
+            // (important for merge commits).
             const prevCommit = await previousCommit(commit.full, directory)
 
             await openDiffInEditor(prevCommit, commit, commitLabel, repository)
