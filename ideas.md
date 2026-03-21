@@ -184,3 +184,20 @@ Long commit messages aren't able to be viewed in a dedicated place (only in
 blame and timeline/graph item hovers). It would be nice if the alternative
 option for copying a commit message could be to open it in an editor. Maybe make
 viewing it in an editor the default with copying it as the alternative option?
+
+# More general string search command 🤔
+
+Currently, only searching a string from a selection in a tracked file is
+supported. This is partially due to the fact that it makes selecting a
+repository to run the Git search command easy. An interesting string to search
+for might come from anywhere, though, like an unsaved editor or the user's
+clipboard. Instead of being so prescriptive, maybe the string search command
+could:
+
+- Accept a selection from anywhere
+- Accept a string from an input box when there is no selection
+
+Both of these would require choosing a repository somehow when we don't have a
+document URI to go off of. I suppose we could either guess (though there's
+nothing to go off of for unsaved files or input box entry) or let the user pick
+a repository.
