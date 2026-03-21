@@ -85,47 +85,39 @@ export function showItem({
 }
 
 export async function openDiffInEditor(
-  fromCommit: Commit,
+  fromCommit: Commit | null,
   toCommit: Commit,
   title: string,
   repository: Repository,
 ) {
   const { directory } = repository
 
-  const args = [
-    "--name-status",
-    "--diff-filter=ADMR",
-    fromCommit.full,
-    toCommit.full,
-  ]
+  const nameStatuses = await diffNameStatuses(fromCommit, toCommit, directory)
 
-  const output = await git("diff", args, { directory })
-  const lines = output.split("\n").map((line) => line.split("\t"))
-
-  const resources = lines.map(([status, ...filenames]) => {
-    switch (status[0]) {
+  const resources = nameStatuses.map((ns) => {
+    switch (ns.status) {
       case "A":
         return {
           originalUri: undefined,
-          modifiedUri: relativeGitUri(filenames[0], toCommit, directory),
+          modifiedUri: relativeGitUri(ns.filename, toCommit, directory),
         }
 
       case "M":
         return {
-          originalUri: relativeGitUri(filenames[0], fromCommit, directory),
-          modifiedUri: relativeGitUri(filenames[0], toCommit, directory),
+          originalUri: relativeGitUri(ns.filename, fromCommit, directory),
+          modifiedUri: relativeGitUri(ns.filename, toCommit, directory),
         }
 
       case "D":
         return {
-          originalUri: relativeGitUri(filenames[0], fromCommit, directory),
+          originalUri: relativeGitUri(ns.filename, fromCommit, directory),
           modifiedUri: undefined,
         }
 
       case "R":
         return {
-          originalUri: relativeGitUri(filenames[0], fromCommit, directory),
-          modifiedUri: relativeGitUri(filenames[1], toCommit, directory),
+          originalUri: relativeGitUri(ns.fromFilename, fromCommit, directory),
+          modifiedUri: relativeGitUri(ns.filename, toCommit, directory),
         }
     }
   })
@@ -144,4 +136,61 @@ export async function openDiffInEditor(
     title,
     resources,
   })
+}
+
+type DiffNameStatus =
+  | {
+      status: "A" | "D" | "M"
+      filename: string
+    }
+  | {
+      status: "R"
+      filename: string
+      fromFilename: string
+    }
+
+export async function diffNameStatuses(
+  fromCommit: Commit | null,
+  toCommit: Commit,
+  directory: vscode.Uri,
+): Promise<DiffNameStatus[]> {
+  const commits =
+    fromCommit === null ? [toCommit.full] : [fromCommit.full, toCommit.full]
+
+  const args = [
+    "-r",
+    "--root",
+    "--no-commit-id",
+    "--find-renames",
+    "--name-status",
+    "--diff-filter=ADMR",
+    ...commits,
+  ]
+
+  const output = await git("diff-tree", args, { directory })
+  const lines = output.split("\n").map((line) => line.split("\t"))
+
+  return lines.map(([status, ...filenames]): DiffNameStatus => {
+    if (status === "A" || status === "D" || status === "M") {
+      return {
+        status,
+        filename: filenames[0],
+      }
+    } else if (status.startsWith("R")) {
+      return {
+        status: "R",
+        fromFilename: filenames[0],
+        filename: filenames[1],
+      }
+    }
+
+    throw Error(`Unexpected diff status: ${status}`)
+  })
+}
+
+export async function firstParentCommit(
+  revision: string,
+  directory: vscode.Uri,
+): Promise<Commit | null> {
+  return await Commit(`${revision}^`, directory)
 }

@@ -4,13 +4,17 @@ import { SelectableQuickPickItem, showSelectableQuickPick } from "../quickPick"
 import { Repository } from "../Repository"
 import {
   excludeNulls,
-  git,
   reverseHistoryArgs,
   runCommandInTerminal,
   truncate,
   userGitCommand,
 } from "../util"
-import { commitRemotes, openDiffInEditor, showItem } from "./common"
+import {
+  commitRemotes,
+  firstParentCommit,
+  openDiffInEditor,
+  showItem,
+} from "./common"
 import { fileAtCommitItems } from "./fileAtCommitItems"
 import { remoteAction } from "./remoteAction"
 
@@ -130,21 +134,4 @@ export async function showCommitActions(
     placeholder: "Select a commit action",
     items: [...commitItems, ...fileCommitItems],
   })
-}
-
-async function firstParentCommit(
-  revision: string,
-  directory: vscode.Uri,
-): Promise<Commit> {
-  const firstParent = await Commit(`${revision}^`, directory)
-
-  if (firstParent !== null) {
-    return firstParent
-  }
-
-  const emptyTree = await git("hash-object", ["-t", "tree", "/dev/null"], {
-    directory,
-  })
-
-  return (await Commit(emptyTree, directory)) as Commit
 }

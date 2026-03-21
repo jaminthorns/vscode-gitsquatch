@@ -177,7 +177,6 @@ export function userGitCommand(command: UserGitCommand): string {
 
 export interface CommitFilenamesOptions {
   reverse?: boolean
-  maxCount?: number
 }
 
 // Get a mapping of commits to historical filenames for every commit in which a
@@ -189,19 +188,15 @@ export async function commitFilenames(
   options: CommitFilenamesOptions = {},
 ): Promise<CommitFilenames | null> {
   try {
-    const maxCount = options.maxCount
-    const reverse = options.reverse ?? false
-
-    const countArgs = maxCount !== undefined ? [`--max-count=${maxCount}`] : []
-    const { revision: revisionArg, reverseFlags } = reverse
-      ? reverseHistoryArgs(revision)
-      : { revision, reverseFlags: [] }
+    const { revision: revisionArg, reverseFlags } =
+      (options.reverse ?? false)
+        ? reverseHistoryArgs(revision)
+        : { revision, reverseFlags: [] }
 
     const args = [
       "--follow",
       "--name-only",
       "--format=%H",
-      ...countArgs,
       ...reverseFlags,
       revisionArg,
       "--",

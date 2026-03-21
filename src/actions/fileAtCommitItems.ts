@@ -12,7 +12,12 @@ import {
   runCommandInTerminal,
   userGitCommand,
 } from "../util"
-import { relativeGitUri, showItem } from "./common"
+import {
+  diffNameStatuses,
+  firstParentCommit,
+  relativeGitUri,
+  showItem,
+} from "./common"
 import { remoteAction } from "./remoteAction"
 
 export function fileAtCommitItems(
@@ -147,16 +152,28 @@ async function openFileDiffInEditor(
   commit: Commit,
   repository: Repository,
 ) {
-  const previous = await previousInfo(commit, filename, repository.directory)
-  const prevCommit = previous?.commit ?? null
-  const prevFilename = previous?.filename ?? filename
+  const { directory } = repository
+
+  const firstParent = await firstParentCommit(commit.full, directory)
+  const nameStatuses = await diffNameStatuses(firstParent, commit, directory)
+  const nameStatus = nameStatuses.find((ns) => ns.filename === filename)
+
+  if (nameStatus === undefined) {
+    const message = `File has no changes at commit ${commit.short}.`
+    vscode.window.showErrorMessage(message)
+
+    return
+  }
+
+  const prevFilename =
+    nameStatus.status === "R" ? nameStatus.fromFilename : nameStatus.filename
 
   let title
 
-  if (prevCommit === null) {
+  if (firstParent === null) {
     title = `${basename(filename)} (added in ${commit.short})`
   } else {
-    const left = `${basename(prevFilename)} (${prevCommit.short})`
+    const left = `${basename(prevFilename)} (${firstParent.short})`
     const right = `${basename(filename)} (${commit.short})`
 
     title = `${left} ↔ ${right}`
@@ -164,40 +181,8 @@ async function openFileDiffInEditor(
 
   vscode.commands.executeCommand(
     "vscode.diff",
-    relativeGitUri(prevFilename, prevCommit, repository.directory),
-    relativeGitUri(filename, commit, repository.directory),
+    relativeGitUri(prevFilename, firstParent, directory),
+    relativeGitUri(filename, commit, directory),
     title,
   )
-}
-
-// TODO: This gets the previous commit in the context of the file, instead of
-// just getting the commit's parent. It should just be changed to get the parent
-// commit instead.
-async function previousInfo(
-  commit: Commit,
-  filename: string,
-  directory: vscode.Uri,
-): Promise<{ commit: Commit; filename: string } | null> {
-  const result = await commitFilenames(commit.full, filename, directory, {
-    maxCount: 2,
-  })
-
-  if (result === null) {
-    return null
-  }
-
-  const entries = Array.from(result)
-
-  if (entries.length !== 2) {
-    return null
-  }
-
-  const [prevCommitRaw, prevFilename] = entries[1]
-  const prevCommit = await Commit(prevCommitRaw, directory)
-
-  if (prevCommit === null) {
-    return null
-  } else {
-    return { commit: prevCommit, filename: prevFilename }
-  }
 }
