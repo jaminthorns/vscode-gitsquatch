@@ -41,11 +41,9 @@ export async function showCommitActions(
           tooltip: "Show Commit (Editor)",
           onSelected: async () => {
             const { directory } = repository
-            // TODO: Evaluate whether we should always diff against first parent
-            // (important for merge commits).
-            const prevCommit = await previousCommit(commit.full, directory)
+            const firstParent = await firstParentCommit(commit.full, directory)
 
-            await openDiffInEditor(prevCommit, commit, commitLabel, repository)
+            await openDiffInEditor(firstParent, commit, commitLabel, repository)
           },
         },
         terminal: {
@@ -134,14 +132,14 @@ export async function showCommitActions(
   })
 }
 
-async function previousCommit(
+async function firstParentCommit(
   revision: string,
   directory: vscode.Uri,
 ): Promise<Commit> {
-  const previousCommit = await Commit(`${revision}^`, directory)
+  const firstParent = await Commit(`${revision}^`, directory)
 
-  if (previousCommit !== null) {
-    return previousCommit
+  if (firstParent !== null) {
+    return firstParent
   }
 
   const emptyTree = await git("hash-object", ["-t", "tree", "/dev/null"], {

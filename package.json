@@ -488,12 +488,12 @@
         },
         "gitsquatch.gitCommands.showRevision": {
           "type": "string",
-          "default": "git show -m ${revision}",
+          "default": "git show --diff-merges=first-parent ${revision}",
           "description": "Git command for showing a revision."
         },
         "gitsquatch.gitCommands.fileDiffAtRevision": {
           "type": "string",
-          "default": "git show -m ${revision} -- '${filename}'",
+          "default": "git show --diff-merges=first-parent ${revision} -- '${filename}'",
           "description": "Git command for showing a diff for a file at a revision."
         },
         "gitsquatch.gitCommands.openFileAtRevision": {
