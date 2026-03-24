@@ -32,6 +32,7 @@ export async function lineHistory(
 
   let documentRanges
 
+  // TODO: Account for staged changes (revision === '')
   if (revision === "HEAD") {
     const translators = await Promise.all([
       // Working Tree -> Document
