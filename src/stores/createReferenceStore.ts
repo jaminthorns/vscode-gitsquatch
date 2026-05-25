@@ -75,6 +75,8 @@ export function createReferenceStore({
 }
 
 // TODO: Handle reftable repositories.
+//
+// Solution: Read the reflog! (credit to Claude for idea)
 export function setupReferenceWatcher(
   type: ReferenceType,
   directory: vscode.Uri,
