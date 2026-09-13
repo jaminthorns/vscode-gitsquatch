@@ -2,13 +2,9 @@ import * as vscode from "vscode"
 import { Commit, CommitInfo } from "../Commit"
 import { SelectableQuickPickItem, showSelectableQuickPick } from "../quickPick"
 import { Repository } from "../Repository"
-import {
-  excludeNulls,
-  reverseHistoryArgs,
-  runCommandInTerminal,
-  truncate,
-  userGitCommand,
-} from "../util"
+import { excludeNulls, truncate } from "../util/general"
+import { reverseHistoryArgs } from "../util/git"
+import { runCommandInTerminal, userGitCommand } from "../util/vscode"
 import {
   commitRemotes,
   firstParentCommit,

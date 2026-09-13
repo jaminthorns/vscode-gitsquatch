@@ -1,6 +1,6 @@
 import { basename, extname } from "path"
 import * as vscode from "vscode"
-import { git } from "./util"
+import { git } from "./util/git"
 
 export type ReferenceType = "localBranch" | "remoteBranch" | "tag"
 

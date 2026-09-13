@@ -2,7 +2,7 @@ import * as vscode from "vscode"
 import { Commit } from "../Commit"
 import { showSelectableQuickPick } from "../quickPick"
 import { Repository } from "../Repository"
-import { runCommandInTerminal, userGitCommand } from "../util"
+import { runCommandInTerminal, userGitCommand } from "../util/vscode"
 import { openDiffInEditor, showItem } from "./common"
 
 export function showCommitRangeActions(

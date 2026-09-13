@@ -2,12 +2,12 @@ import { tmpdir } from "os"
 import { join } from "path"
 import * as vscode from "vscode"
 import { RepositoryStore } from "../stores"
+import { uriRevision } from "../util/git"
 import {
   getValidatedRepository,
   runCommandInTerminal,
-  uriRevision,
   userGitCommand,
-} from "../util"
+} from "../util/vscode"
 import { suffixWithRevision } from "./common"
 
 export async function stringSearch(

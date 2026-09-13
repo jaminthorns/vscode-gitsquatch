@@ -5,7 +5,7 @@ import {
   getValidatedRepository,
   runCommandInTerminal,
   userGitCommand,
-} from "../util"
+} from "../util/vscode"
 
 export async function folderHistory(
   uri: vscode.Uri,

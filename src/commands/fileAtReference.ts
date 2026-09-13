@@ -6,12 +6,12 @@ import { SelectableQuickPickItem, showSelectableQuickPick } from "../quickPick"
 import { ReferenceType, referenceInfo } from "../references"
 import { Repository } from "../Repository"
 import { ReferenceStore, RepositoryStore } from "../stores"
+import { git } from "../util/git"
 import {
   getValidatedRepository,
-  git,
   runCommandInTerminal,
   userGitCommand,
-} from "../util"
+} from "../util/vscode"
 
 export async function fileAtReference(
   uri: vscode.Uri,

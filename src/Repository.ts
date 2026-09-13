@@ -8,7 +8,7 @@ import {
   RemoteProviderStore,
   TagStore,
 } from "./stores"
-import { git } from "./util"
+import { git } from "./util/git"
 
 export interface Repository extends vscode.Disposable {
   directory: vscode.Uri

@@ -3,7 +3,7 @@ import { Commit } from "../Commit"
 import { SelectableQuickPickItem } from "../quickPick"
 import { RemoteProvider } from "../remoteProviders"
 import { Repository } from "../Repository"
-import { git } from "../util"
+import { git } from "../util/git"
 
 export function relativeGitUri(
   filename: string,

@@ -2,13 +2,12 @@ import { basename } from "path"
 import * as vscode from "vscode"
 import { LineRange, LineTranslator } from "../LineTranslator"
 import { RepositoryStore } from "../stores"
+import { commitFilenames, uriRevision } from "../util/git"
 import {
-  commitFilenames,
   getValidatedRepository,
   runCommandInTerminal,
-  uriRevision,
   userGitCommand,
-} from "../util"
+} from "../util/vscode"
 import {
   blameMoveCopyDetectionFlags,
   displayRange,

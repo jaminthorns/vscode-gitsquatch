@@ -3,7 +3,7 @@ import { join, relative } from "path"
 import * as vscode from "vscode"
 import { LineTranslator } from "./LineTranslator"
 import { Repository } from "./Repository"
-import { git, uriRevision } from "./util"
+import { git, uriRevision } from "./util/git"
 
 export async function fileAtCommitLink(
   repository: Repository,
