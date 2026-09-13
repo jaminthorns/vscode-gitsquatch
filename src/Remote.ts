@@ -1,5 +1,5 @@
 import * as vscode from "vscode"
-import { git } from "./util"
+import { git } from "./util/git"
 
 type Server =
   | { protocol: "ssh"; host: string; user: string }

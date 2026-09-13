@@ -1,4 +1,4 @@
-import { GitCommandOptions, git } from "./util"
+import { GitCommandOptions, git } from "./util/git"
 
 export interface LineRange {
   start: number

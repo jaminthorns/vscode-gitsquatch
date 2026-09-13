@@ -4,7 +4,9 @@ import { SelectableQuickPickItem, showSelectableQuickPick } from "../quickPick"
 import { ReferenceType, referenceInfo, referenceValid } from "../references"
 import { RemoteProvider } from "../remoteProviders"
 import { Repository } from "../Repository"
-import { filterAsync, git, runCommandInTerminal, userGitCommand } from "../util"
+import { filterAsync } from "../util/general"
+import { git } from "../util/git"
+import { runCommandInTerminal, userGitCommand } from "../util/vscode"
 import { remoteAction } from "./remoteAction"
 
 export function showReferenceActions(

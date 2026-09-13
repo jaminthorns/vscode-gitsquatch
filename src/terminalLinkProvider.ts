@@ -9,6 +9,7 @@ import {
   RemoteBranchLinkMatcher,
   TagLinkMatcher,
 } from "./linkMatchers"
+import { TerminalLinkWithMatches, matchesToLinks } from "./linkMatching"
 import { showSelectableQuickPick } from "./quickPick"
 import { Repository } from "./Repository"
 import { RepositoryStore, TerminalFolderStore } from "./stores"
@@ -18,7 +19,7 @@ interface TerminalOptions extends vscode.TerminalOptions {
   context?: TerminalContext
 }
 
-const matchers = {
+export const matchers = {
   commit: CommitLinkMatcher,
   commitRange: CommitRangeLinkMatcher,
   file: FileLinkMatcher,
@@ -34,11 +35,7 @@ export interface LinkMatchWithType<Context> extends LinkMatch<Context> {
   type: LinkMatcherType
 }
 
-interface TerminalLinkWithMatches extends vscode.TerminalLink {
-  matches: LinkMatchWithType<any>[]
-}
-
-interface TerminalLink extends TerminalLinkWithMatches {
+interface TerminalLink extends TerminalLinkWithMatches<LinkMatchWithType<any>> {
   repository: Repository
   terminalContext: Partial<TerminalContext>
 }
@@ -74,11 +71,9 @@ export function terminalLinkProvider(
         ({ type, matches }) => matches.map((match) => ({ ...match, type })),
       )
 
-      return matchesToLinks(matches).map((link) => ({
-        ...link,
-        repository,
-        terminalContext,
-      }))
+      return matchesToLinks(matches)
+        .map(addLinkTooltip)
+        .map((link) => ({ ...link, repository, terminalContext }))
     },
 
     handleTerminalLink({ repository, terminalContext, matches }: TerminalLink) {
@@ -103,69 +98,21 @@ export function terminalLinkProvider(
   })
 }
 
-export function matchesToLinks(
-  matches: LinkMatchWithType<unknown>[],
-): TerminalLinkWithMatches[] {
-  return matches
-    .filter((match) => !someOther(match, matches, overlapsEarlier))
-    .filter((match) => !someOther(match, matches, sameStartLonger))
-    .reduce((links, match) => {
-      const existing = links.find((link) => equal(link, match))
+function addLinkTooltip(
+  link: TerminalLinkWithMatches<LinkMatchWithType<unknown>>,
+): TerminalLinkWithMatches<LinkMatchWithType<unknown>> {
+  const theseMatchers = link.matches.map(({ type }) => matchers[type])
 
-      if (existing === undefined) {
-        links.push({
-          startIndex: match.startIndex,
-          length: match.length,
-          matches: [match],
-        })
-      } else {
-        existing.matches.push(match)
-      }
+  let tooltip
 
-      return links
-    }, [] as TerminalLinkWithMatches[])
-    .map((link) => {
-      const theseMatchers = link.matches.map(({ type }) => matchers[type])
+  if (theseMatchers.length === 1) {
+    tooltip = theseMatchers[0].prompt
+  } else {
+    const labels = link.matches.map(({ type }) => matchers[type].label)
+    const choices = labels.map((l) => l.toLocaleLowerCase()).join("/")
 
-      let tooltip
+    tooltip = `Choose what to do with ${choices}`
+  }
 
-      if (theseMatchers.length === 1) {
-        tooltip = theseMatchers[0].prompt
-      } else {
-        const labels = link.matches.map(({ type }) => matchers[type].label)
-        const choices = labels.map((l) => l.toLocaleLowerCase()).join("/")
-
-        tooltip = `Choose what to do with ${choices}`
-      }
-
-      return { ...link, tooltip }
-    })
-}
-
-function someOther<T>(
-  item: T,
-  items: T[],
-  predicate: (a: T, b: T) => boolean,
-): boolean {
-  return items
-    .filter((other) => other !== item)
-    .some((other) => predicate(other, item))
-}
-
-function overlapsEarlier(
-  a: vscode.TerminalLink,
-  b: vscode.TerminalLink,
-): boolean {
-  return a.startIndex < b.startIndex && b.startIndex < a.startIndex + a.length
-}
-
-function sameStartLonger(
-  a: vscode.TerminalLink,
-  b: vscode.TerminalLink,
-): boolean {
-  return a.startIndex === b.startIndex && a.length > b.length
-}
-
-function equal(a: vscode.TerminalLink, b: vscode.TerminalLink): boolean {
-  return a.startIndex === b.startIndex && a.length === b.length
+  return { ...link, tooltip }
 }

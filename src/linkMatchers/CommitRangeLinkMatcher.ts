@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 import { showCommitRangeActions } from "../actions"
 import { Commit } from "../Commit"
-import { excludeNulls } from "../util"
+import { excludeNulls } from "../util/general"
 import { LinkMatcher } from "./LinkMatcher"
 
 export const CommitRangeLinkMatcher: LinkMatcher<{

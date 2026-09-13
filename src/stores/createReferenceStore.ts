@@ -8,7 +8,8 @@ import {
   referenceValid,
 } from "../references"
 import { Trie } from "../Trie"
-import { isDirectory, streamCommand } from "../util"
+import { streamCommand } from "../util/os"
+import { isDirectory } from "../util/vscode"
 
 type ReferenceTrie = Trie<null>
 

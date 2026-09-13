@@ -1,5 +1,15 @@
 import { defineConfig } from "@vscode/test-cli"
+import { mkdtempSync } from "fs"
+import { tmpdir } from "os"
+import { join } from "path"
 
-export default defineConfig({
-  files: "out/test/**/*.test.js",
-})
+const dataDir = mkdtempSync(join(tmpdir(), "gitsquatch-test-user-data-"))
+const repoDir = mkdtempSync(join(tmpdir(), "gitsquatch-test-repository-"))
+
+export default defineConfig([
+  {
+    files: "out/test/**/*.integration.test.js",
+    launchArgs: ["--user-data-dir", dataDir],
+    workspaceFolder: repoDir,
+  },
+])

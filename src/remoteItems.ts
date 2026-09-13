@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 import { SelectableQuickPickButton, SelectableQuickPickItem } from "./quickPick"
 import { RemoteProvider } from "./remoteProviders"
-import { openUrl } from "./util"
+import { openUrl } from "./util/vscode"
 
 export function remoteItems(
   remotes: RemoteProvider[],

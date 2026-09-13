@@ -19,7 +19,8 @@ import { fileAtCommitLineProvider } from "./definitionProviders/fileAtCommitLine
 import { RepositoryStore, TerminalFolderStore } from "./stores"
 import { terminalLinkProvider } from "./terminalLinkProvider"
 import { uriHandler } from "./uriHandler"
-import { filterAsync, git } from "./util"
+import { filterAsync } from "./util/general"
+import { git } from "./util/git"
 
 export async function activate(context: vscode.ExtensionContext) {
   const { workspaceFolders } = vscode.workspace

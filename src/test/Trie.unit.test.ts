@@ -1,15 +1,15 @@
-import { deepEqual } from "assert/strict"
+import { deepStrictEqual } from "assert/strict"
 import { Trie } from "../Trie"
 
 suite("StringTrie adding/removing", () => {
   test("add a string", () => {
     const trie = Trie<null>()
 
-    deepEqual(trie.findMatches("abc"), [])
+    deepStrictEqual(trie.findMatches("abc"), [])
 
     trie.set("abc", null)
 
-    deepEqual(trie.findMatches("abc"), [
+    deepStrictEqual(trie.findMatches("abc"), [
       { startIndex: 0, text: "abc", value: null },
     ])
   })
@@ -20,13 +20,13 @@ suite("StringTrie adding/removing", () => {
     trie.set("abc", null)
     trie.set("xyz", null)
 
-    deepEqual(trie.findMatches("abc"), [
+    deepStrictEqual(trie.findMatches("abc"), [
       { startIndex: 0, text: "abc", value: null },
     ])
 
     trie.delete("abc")
 
-    deepEqual(trie.findMatches("abc"), [])
+    deepStrictEqual(trie.findMatches("abc"), [])
   })
 })
 
@@ -41,36 +41,36 @@ suite("StringTrie matching", () => {
   trie.set("xyz", null)
 
   test("no matching members, no match", () => {
-    deepEqual(trie.findMatches("xy"), [])
+    deepStrictEqual(trie.findMatches("xy"), [])
   })
 
   test("single matching member, single match", () => {
-    deepEqual(trie.findMatches("xyz"), [
+    deepStrictEqual(trie.findMatches("xyz"), [
       { startIndex: 0, text: "xyz", value: null },
     ])
   })
 
   test("multiple matching members (overlapping, contained), single match", () => {
-    deepEqual(trie.findMatches("abc"), [
+    deepStrictEqual(trie.findMatches("abc"), [
       { startIndex: 0, text: "abc", value: null },
     ])
   })
 
   test("multiple matching members (overlapping, not contained), single match", () => {
-    deepEqual(trie.findMatches("abcdefg"), [
+    deepStrictEqual(trie.findMatches("abcdefg"), [
       { startIndex: 2, text: "cdefg", value: null },
     ])
   })
 
   test("multiple matching members, multiple matches", () => {
-    deepEqual(trie.findMatches("abc xyz"), [
+    deepStrictEqual(trie.findMatches("abc xyz"), [
       { startIndex: 0, text: "abc", value: null },
       { startIndex: 4, text: "xyz", value: null },
     ])
   })
 
   test("get entries", () => {
-    deepEqual(trie.entries(), [
+    deepStrictEqual(trie.entries(), [
       ["a", null],
       ["abc", null],
       ["ade", null],
@@ -79,7 +79,7 @@ suite("StringTrie matching", () => {
       ["xyz", null],
     ])
 
-    deepEqual(trie.entries("a"), [
+    deepStrictEqual(trie.entries("a"), [
       ["a", null],
       ["abc", null],
       ["ade", null],

@@ -4,14 +4,13 @@ import { Commit } from "../Commit"
 import { SelectableQuickPickItem } from "../quickPick"
 import { RemoteProvider } from "../remoteProviders"
 import { Repository } from "../Repository"
+import { excludeNulls } from "../util/general"
 import {
   CommitFilenamesOptions,
   commitFilenames,
-  excludeNulls,
   reverseHistoryArgs,
-  runCommandInTerminal,
-  userGitCommand,
-} from "../util"
+} from "../util/git"
+import { runCommandInTerminal, userGitCommand } from "../util/vscode"
 import {
   diffNameStatuses,
   firstParentCommit,

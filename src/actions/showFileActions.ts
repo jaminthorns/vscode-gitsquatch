@@ -4,12 +4,9 @@ import * as vscode from "vscode"
 import { Commit } from "../Commit"
 import { SelectableQuickPickItem, showSelectableQuickPick } from "../quickPick"
 import { Repository } from "../Repository"
-import {
-  commitFilenames,
-  excludeNulls,
-  runCommandInTerminal,
-  userGitCommand,
-} from "../util"
+import { excludeNulls } from "../util/general"
+import { commitFilenames } from "../util/git"
+import { runCommandInTerminal, userGitCommand } from "../util/vscode"
 import { commitRemotes } from "./common"
 import { fileAtCommitItems } from "./fileAtCommitItems"
 

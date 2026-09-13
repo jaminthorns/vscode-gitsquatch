@@ -2,7 +2,8 @@ import { basename } from "path"
 import * as vscode from "vscode"
 import { Remote } from "../Remote"
 import { RemoteProvider } from "../remoteProviders"
-import { excludeNulls, git } from "../util"
+import { excludeNulls } from "../util/general"
+import { git } from "../util/git"
 
 export interface RemoteProviderStore extends vscode.Disposable {
   sorted(): RemoteProvider[]

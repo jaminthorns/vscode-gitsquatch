@@ -2,7 +2,7 @@ import { basename } from "path"
 import * as vscode from "vscode"
 import { Commit } from "./Commit"
 import { RepositoryStore } from "./stores"
-import { getValidatedRepository } from "./util"
+import { getValidatedRepository } from "./util/vscode"
 
 export function uriHandler(repositories: RepositoryStore): vscode.Disposable {
   return vscode.window.registerUriHandler({

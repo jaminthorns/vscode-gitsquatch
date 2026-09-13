@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 import { showSelectableQuickPick } from "../quickPick"
 import { remoteItems } from "../remoteItems"
-import { openUrl } from "../util"
+import { openUrl } from "../util/vscode"
 import { LinkMatcher } from "./LinkMatcher"
 
 export const IssueLinkMatcher: LinkMatcher<{ issueNumber: string }> = {

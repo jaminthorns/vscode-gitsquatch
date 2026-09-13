@@ -1,8 +1,9 @@
+import { fail } from "assert"
 import { mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import * as vscode from "vscode"
-import { git } from "../util"
+import { git } from "../util/git"
 
 suite("Git repository", () => {
   test("create it", async () => {

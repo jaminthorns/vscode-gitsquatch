@@ -2,7 +2,9 @@ import { writeFile } from "fs"
 import * as vscode from "vscode"
 import { ignoreReferenceFile } from "../references"
 import { Trie } from "../Trie"
-import { git, isDirectory, streamCommand } from "../util"
+import { git } from "../util/git"
+import { streamCommand } from "../util/os"
+import { isDirectory } from "../util/vscode"
 
 type FilenameTrie = Trie<null>
 

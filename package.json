@@ -513,10 +513,12 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "fix": "eslint src --ext ts --fix",
-    "test": "vscode-test",
+    "pretest": "npm run compile && npm run lint",
+    "test:unit": "mocha",
+    "test:integration": "vscode-test",
+    "test": "npm run test:unit && npm run test:integration",
     "build": "vsce package"
   },
   "devDependencies": {
@@ -532,6 +534,7 @@
     "eslint-config-prettier": "^9.1.2",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.5.4",
+    "mocha": "^11.8.0",
     "prettier": "^3.7.4",
     "typescript": "^5.9.3"
   },
