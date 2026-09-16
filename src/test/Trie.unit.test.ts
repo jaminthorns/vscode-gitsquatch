@@ -1,7 +1,7 @@
 import { deepStrictEqual } from "assert/strict"
 import { Trie } from "../Trie"
 
-suite("StringTrie adding/removing", () => {
+suite("Trie adding/removing", () => {
   test("add a string", () => {
     const trie = Trie<null>()
 
@@ -30,7 +30,7 @@ suite("StringTrie adding/removing", () => {
   })
 })
 
-suite("StringTrie matching", () => {
+suite("Trie matching", () => {
   const trie = Trie<null>()
 
   trie.set("abc", null)

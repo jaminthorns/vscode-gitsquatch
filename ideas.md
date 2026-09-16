@@ -85,7 +85,7 @@ useful since VS Code already has stash listing functionality built-in.
   collection of valid link candidates, and then checking for matches to find
   links. As long as the candidates can be populated relatively quickly either at
   extension activation or terminal creation, then this can be made efficient
-  with `StringTrie`.
+  with `Trie`.
 
   This approach avoids the limitations of parsing and is good for matching links
   that don't have a definite pattern. A downside is that the candidate
