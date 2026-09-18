@@ -34,7 +34,7 @@ export function fileAtCommitItems(
     commitFilenames: commitFilenames(
       commit.full,
       filename,
-      repository.directory,
+      repository.directory.fsPath,
       commitFilenamesOptions,
     ),
   })
@@ -51,7 +51,11 @@ export function fileAtCommitItems(
         editor: {
           tooltip: "Open File at Commit (Editor)",
           onSelected: () => {
-            const uri = relativeGitUri(filename, commit, repository.directory)
+            const uri = relativeGitUri(
+              filename,
+              commit,
+              repository.directory.fsPath,
+            )
 
             vscode.commands.executeCommand("vscode.open", uri, {}, fileLabel)
           },
@@ -151,10 +155,10 @@ async function openFileDiffInEditor(
   commit: Commit,
   repository: Repository,
 ) {
-  const { directory } = repository
+  const cwd = repository.directory.fsPath
 
-  const firstParent = await firstParentCommit(commit.full, directory)
-  const nameStatuses = await diffNameStatuses(firstParent, commit, directory)
+  const firstParent = await firstParentCommit(commit.full, cwd)
+  const nameStatuses = await diffNameStatuses(firstParent, commit, cwd)
   const nameStatus = nameStatuses.find((ns) => ns.filename === filename)
 
   if (nameStatus === undefined) {
@@ -180,8 +184,8 @@ async function openFileDiffInEditor(
 
   vscode.commands.executeCommand(
     "vscode.diff",
-    relativeGitUri(prevFilename, firstParent, directory),
-    relativeGitUri(filename, commit, directory),
+    relativeGitUri(prevFilename, firstParent, cwd),
+    relativeGitUri(filename, commit, cwd),
     title,
   )
 }

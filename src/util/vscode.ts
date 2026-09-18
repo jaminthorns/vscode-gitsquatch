@@ -101,7 +101,7 @@ export async function getValidatedRepository(
 
   try {
     await git("ls-files", ["--error-unmatch", filename], {
-      directory: repository.directory,
+      cwd: repository.directory.fsPath,
     })
 
     return repository

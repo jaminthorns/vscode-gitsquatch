@@ -86,6 +86,7 @@ async function remoteReferenceInfo(
   refDirectory: string,
   repository: Repository,
 ): Promise<RemoteReferenceInfo | null> {
+  const cwd = repository.directory.fsPath
   const remoteProviders = repository.remoteProviders.sorted()
 
   if (remoteProviders.length === 0) {
@@ -101,18 +102,16 @@ async function remoteReferenceInfo(
       const fullReference = await git(
         "rev-parse",
         ["--symbolic-full-name", reference],
-        { directory: repository.directory },
+        { cwd },
       )
 
       const remoteBranch = await git(
         "for-each-ref",
         ["--format=%(upstream:short)", fullReference],
-        { directory: repository.directory },
+        { cwd },
       )
 
-      if (
-        await referenceValid(remoteBranch, "remoteBranch", repository.directory)
-      ) {
+      if (await referenceValid(remoteBranch, "remoteBranch", cwd)) {
         return remoteBranchInfo(remoteBranch, remoteProviders)
       } else {
         return null
@@ -123,7 +122,7 @@ async function remoteReferenceInfo(
       const providers = await filterAsync(remoteProviders, async (provider) => {
         const pattern = join("refs", refDirectory, reference)
         const output = await git("ls-remote", [provider.remote.name, pattern], {
-          directory: repository.directory,
+          cwd,
         })
 
         return output !== ""

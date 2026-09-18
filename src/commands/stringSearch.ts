@@ -62,7 +62,7 @@ export async function stringSearch(
   }
 
   runCommandInTerminal({
-    name: await suffixWithRevision("String Search", revision, directory),
+    name: await suffixWithRevision("String Search", revision, directory.fsPath),
     icon: "search",
     cwd: directory,
     env,

@@ -1,4 +1,3 @@
-import * as vscode from "vscode"
 import { git } from "./util/git"
 
 export interface Commit {
@@ -8,11 +7,11 @@ export interface Commit {
 
 export async function Commit(
   revision: string,
-  directory: vscode.Uri,
+  cwd: string,
 ): Promise<Commit | null> {
   try {
     const args = [`${revision}^{commit}`, "--short", `${revision}^{commit}`]
-    const commits = await git("rev-parse", args, { directory })
+    const commits = await git("rev-parse", args, { cwd })
     const [full, short] = commits.split("\n")
 
     return { full, short }
@@ -30,12 +29,12 @@ export interface CommitInfo {
 
 export async function CommitInfo(
   revision: string,
-  directory: vscode.Uri,
+  cwd: string,
 ): Promise<CommitInfo> {
   const sep = "\u001f"
   const format = `%aI${sep}%an${sep}%s${sep}%B`
   const args = [`--format=${format}`, "--max-count=1", revision]
-  const rawInfo = await git("log", args, { directory })
+  const rawInfo = await git("log", args, { cwd })
 
   const [rawAuthorDate, authorName, subject, message] = rawInfo.split(sep)
 

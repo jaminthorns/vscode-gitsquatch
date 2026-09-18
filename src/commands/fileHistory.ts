@@ -25,7 +25,7 @@ export async function fileHistory(
   const label = basename(filename)
 
   runCommandInTerminal({
-    name: await suffixWithRevision(label, revision, directory),
+    name: await suffixWithRevision(label, revision, directory.fsPath),
     icon: "history",
     cwd: directory,
     command: userGitCommand({
@@ -34,7 +34,7 @@ export async function fileHistory(
     }),
     context: {
       filename,
-      commitFilenames: commitFilenames(revision, filename, directory),
+      commitFilenames: commitFilenames(revision, filename, directory.fsPath),
     },
   })
 }

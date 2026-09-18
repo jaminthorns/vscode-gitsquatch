@@ -12,6 +12,7 @@
     "curly": "warn",
     "eqeqeq": "warn",
     "no-throw-literal": "warn",
+    "object-shorthand": "warn",
     "sort-imports": ["warn", { "ignoreDeclarationSort": true }],
     "import/order": [
       "warn",

@@ -20,7 +20,7 @@ export async function showCommitActions(
   filename?: string,
 ) {
   const remotes = commitRemotes(commit, repository)
-  const commitInfo = await CommitInfo(commit.full, repository.directory)
+  const commitInfo = await CommitInfo(commit.full, repository.directory.fsPath)
 
   const { authorDate, authorName, subject } = commitInfo
   const commitLabel = `${commit.short} - ${truncate(subject, 36)}`
@@ -40,8 +40,10 @@ export async function showCommitActions(
         editor: {
           tooltip: "Show Commit (Editor)",
           onSelected: async () => {
-            const { directory } = repository
-            const firstParent = await firstParentCommit(commit.full, directory)
+            const firstParent = await firstParentCommit(
+              commit.full,
+              repository.directory.fsPath,
+            )
 
             await openDiffInEditor(firstParent, commit, commitLabel, repository)
           },

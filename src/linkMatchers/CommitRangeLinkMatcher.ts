@@ -34,8 +34,14 @@ export const CommitRangeLinkMatcher: LinkMatcher<{
       await Promise.all(
         lineMatches.map(async (match) => {
           const [commitRange, fromCommitRaw, toCommitRaw] = match
-          const fromCommit = await Commit(fromCommitRaw, repository.directory)
-          const toCommit = await Commit(toCommitRaw, repository.directory)
+          const fromCommit = await Commit(
+            fromCommitRaw,
+            repository.directory.fsPath,
+          )
+          const toCommit = await Commit(
+            toCommitRaw,
+            repository.directory.fsPath,
+          )
 
           if (
             fromCommit === null ||

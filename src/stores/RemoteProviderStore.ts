@@ -1,4 +1,4 @@
-import { basename } from "path"
+import { basename, join } from "path"
 import * as vscode from "vscode"
 import { Remote } from "../Remote"
 import { RemoteProvider } from "../remoteProviders"
@@ -10,13 +10,14 @@ export interface RemoteProviderStore extends vscode.Disposable {
 }
 
 export function RemoteProviderStore(
-  directory: vscode.Uri,
-  gitDirectory: vscode.Uri,
+  gitDir: string,
+  cwd: string,
 ): RemoteProviderStore {
   const providers: Map<string, RemoteProvider> = new Map()
-  const remoteWatcher = setupRemoteWatcher(directory, gitDirectory, providers)
 
-  loadProviders(directory, providers)
+  const remoteWatcher = setupRemoteWatcher(providers, gitDir, cwd)
+
+  loadProviders(providers, cwd)
 
   return {
     sorted() {
@@ -40,17 +41,17 @@ export function RemoteProviderStore(
 }
 
 function setupRemoteWatcher(
-  directory: vscode.Uri,
-  gitDirectory: vscode.Uri,
   providers: Map<string, RemoteProvider>,
+  gitDir: string,
+  cwd: string,
 ): vscode.FileSystemWatcher {
-  const dir = vscode.Uri.joinPath(gitDirectory, "refs", "remotes")
+  const dir = join(gitDir, "refs", "remotes")
   const pattern = new vscode.RelativePattern(dir, "*")
   const watcher = vscode.workspace.createFileSystemWatcher(pattern)
 
   watcher.onDidCreate(async (uri) => {
     const name = basename(uri.fsPath)
-    const remote = await Remote(name, directory)
+    const remote = await Remote(name, cwd)
 
     if (remote !== null) {
       providers.set(name, RemoteProvider(remote))
@@ -64,13 +65,13 @@ function setupRemoteWatcher(
   return watcher
 }
 
-export async function loadProviders(
-  directory: vscode.Uri,
+async function loadProviders(
   providers: Map<string, RemoteProvider>,
+  cwd: string,
 ): Promise<void> {
-  const output = await git("remote", [], { directory })
+  const output = await git("remote", [], { cwd })
   const names = output === "" ? [] : output.split("\n")
-  const remotes = await Promise.all(names.map((n) => Remote(n, directory)))
+  const remotes = await Promise.all(names.map((n) => Remote(n, cwd)))
   const remoteProviders = excludeNulls(remotes).map(RemoteProvider)
 
   remoteProviders.forEach((provider) => {

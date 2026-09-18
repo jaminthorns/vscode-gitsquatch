@@ -84,7 +84,7 @@ async function setupRepositories(
 async function inRepository(workspaceFolder: vscode.WorkspaceFolder) {
   try {
     const result = await git("rev-parse", ["--is-inside-work-tree"], {
-      directory: workspaceFolder.uri,
+      cwd: workspaceFolder.uri.fsPath,
     })
 
     return result === "true"

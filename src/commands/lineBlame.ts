@@ -40,7 +40,7 @@ export async function lineBlame(
     const translators = [
       // Working Tree -> Document
       await LineTranslator.fromDiff(["--no-index", "--", filename, "-"], {
-        directory,
+        cwd: directory.fsPath,
         stdin: document.getText(),
         ignoreNonZeroExitCode: true,
       }),
@@ -63,7 +63,7 @@ export async function lineBlame(
   const label = `${basename(filename)}:${rangeSuffix}`
 
   runCommandInTerminal({
-    name: await suffixWithRevision(label, revision, directory),
+    name: await suffixWithRevision(label, revision, directory.fsPath),
     icon: "person",
     cwd: directory,
     command: userGitCommand({
@@ -77,7 +77,7 @@ export async function lineBlame(
     }),
     context: {
       filename,
-      commitFilenames: commitFilenames(revision, filename, directory),
+      commitFilenames: commitFilenames(revision, filename, directory.fsPath),
     },
   })
 }

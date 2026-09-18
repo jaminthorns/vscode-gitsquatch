@@ -1,17 +1,13 @@
-import * as vscode from "vscode"
-import { ReferenceStore, createReferenceStore } from "./createReferenceStore"
+import { ReferenceStore } from "./ReferenceStore"
 
-export function TagStore(
-  directory: vscode.Uri,
-  gitDirectory: vscode.Uri,
-): ReferenceStore {
-  return createReferenceStore({
+export function TagStore(gitDir: string, cwd: string): ReferenceStore {
+  return ReferenceStore({
     type: "tag",
     gitSubcommand: "tag",
     gitArgs: ["--format=%(refname:lstrip=2)"],
     debugFilePrefix: "tags",
     debugMessageLabel: "Tags",
-    directory,
-    gitDirectory,
+    gitDir,
+    cwd,
   })
 }

@@ -2,7 +2,7 @@ import { sep } from "path"
 import * as vscode from "vscode"
 import { Repository } from "../Repository"
 
-export interface RepositoryStore {
+export interface RepositoryStore extends vscode.Disposable {
   addRepository(folder: vscode.WorkspaceFolder): Promise<void>
   removeRepository(folder: vscode.WorkspaceFolder): void
   getRepository(uri: vscode.Uri): Repository | undefined
@@ -30,6 +30,14 @@ export function RepositoryStore(): RepositoryStore {
 
     allRepositories() {
       return Array.from(repositories.values())
+    },
+
+    dispose() {
+      repositories.forEach((repository) => {
+        repository.dispose()
+      })
+
+      repositories.clear()
     },
   }
 }

@@ -5,7 +5,7 @@ import { chunk } from "./general"
 import { CommandOptions, runCommand } from "./os"
 
 export interface GitCommandOptions extends CommandOptions {
-  directory: vscode.Uri
+  cwd: string
 }
 
 export async function git(
@@ -50,7 +50,7 @@ export interface CommitFilenamesOptions {
 export async function commitFilenames(
   revision: string,
   path: string,
-  directory: vscode.Uri,
+  cwd: string,
   options: CommitFilenamesOptions = {},
 ): Promise<CommitFilenames | null> {
   try {
@@ -69,7 +69,7 @@ export async function commitFilenames(
       path,
     ]
 
-    const output = await git("log", args, { directory })
+    const output = await git("log", args, { cwd })
 
     return new Map(chunk(output.split(/\n+/), 2) as [string, string][])
   } catch (error) {

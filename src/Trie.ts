@@ -29,6 +29,7 @@ export interface Trie<Value> {
   update(key: string, updater: Updater<Value>): Value
   delete(key: string): void
   findMatches(text: string): Match<Value>[]
+  clear(): void
 }
 
 export function Trie<Value>(): Trie<Value> {
@@ -80,6 +81,11 @@ export function Trie<Value>(): Trie<Value> {
 
         return match === overlapping[0]
       })
+    },
+
+    clear() {
+      root.terminal = false
+      root.children.clear()
     },
   }
 }

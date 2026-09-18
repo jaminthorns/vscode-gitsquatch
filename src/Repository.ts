@@ -23,16 +23,16 @@ export async function Repository(
   folder: vscode.WorkspaceFolder,
 ): Promise<Repository> {
   const directory = folder.uri
+  const cwd = directory.fsPath
 
-  const gitDirRel = await git("rev-parse", ["--git-common-dir"], { directory })
-  const gitDirAbs = resolve(directory.fsPath, gitDirRel)
-  const gitDirectory = vscode.Uri.parse(gitDirAbs)
+  const gitDirRel = await git("rev-parse", ["--git-common-dir"], { cwd })
+  const gitDir = resolve(cwd, gitDirRel)
 
-  const remoteProviders = RemoteProviderStore(directory, gitDirectory)
-  const filenames = await FilenameStore(directory, gitDirectory)
-  const localBranches = LocalBranchStore(directory, gitDirectory)
-  const remoteBranches = RemoteBranchStore(directory, gitDirectory)
-  const tags = TagStore(directory, gitDirectory)
+  const remoteProviders = RemoteProviderStore(gitDir, cwd)
+  const filenames = await FilenameStore(gitDir, cwd)
+  const localBranches = LocalBranchStore(gitDir, cwd)
+  const remoteBranches = RemoteBranchStore(gitDir, cwd)
+  const tags = TagStore(gitDir, cwd)
 
   return {
     directory,

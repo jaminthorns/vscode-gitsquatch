@@ -10,13 +10,14 @@ export async function fileAtCommitLink(
   document: vscode.TextDocument,
   position: vscode.Position,
 ): Promise<vscode.LocationLink | null> {
-  const { directory } = repository
+  const cwd = repository.directory.fsPath
+
   const originLine = document.lineAt(position)
-  const originPath = relative(directory.fsPath, document.uri.path)
+  const originPath = relative(cwd, document.uri.path)
   const revision = uriRevision(document.uri)
 
-  const targetPath = await latestPath(originPath, revision, "HEAD", directory)
-  const targetUri = vscode.Uri.file(join(directory.fsPath, targetPath))
+  const targetPath = await latestPath(originPath, revision, "HEAD", cwd)
+  const targetUri = vscode.Uri.file(join(cwd, targetPath))
 
   if (!existsSync(targetUri.fsPath)) {
     return null
@@ -28,10 +29,10 @@ export async function fileAtCommitLink(
 
   const translators = await Promise.all([
     // Revision -> Working Tree
-    LineTranslator.fromDiff([originBlob, targetBlob], { directory }),
+    LineTranslator.fromDiff([originBlob, targetBlob], { cwd }),
     // Working Tree -> Document
     LineTranslator.fromDiff(["--no-index", "--", targetPath, "-"], {
-      directory,
+      cwd,
       stdin: targetDocument.getText(),
       ignoreNonZeroExitCode: true,
     }),
@@ -71,7 +72,7 @@ async function latestPath(
   fromPath: string,
   fromRef: string,
   toRef: string,
-  directory: vscode.Uri,
+  cwd: string,
 ): Promise<string> {
   const args = [
     "--ancestry-path",
@@ -81,7 +82,7 @@ async function latestPath(
     `${fromRef}..${toRef}`,
   ]
 
-  const output = await git("log", args, { directory })
+  const output = await git("log", args, { cwd })
 
   const pathRenames = output.split("\n").map((line) => {
     const [, from, to] = line.split("\t")

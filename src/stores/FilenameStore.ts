@@ -1,4 +1,5 @@
 import { writeFile } from "fs"
+import { join } from "path"
 import * as vscode from "vscode"
 import { ignoreReferenceFile } from "../references"
 import { Trie } from "../Trie"
@@ -14,18 +15,14 @@ export interface FilenameStore extends vscode.Disposable {
 }
 
 export async function FilenameStore(
-  directory: vscode.Uri,
-  gitDirectory: vscode.Uri,
+  gitDir: string,
+  cwd: string,
 ): Promise<FilenameStore> {
   const filenames: FilenameTrie = Trie()
 
-  const filenameWatcher = await setupFilenameWatcher(
-    directory,
-    gitDirectory,
-    filenames,
-  )
+  const filenameWatcher = await setupFilenameWatcher(filenames, gitDir, cwd)
 
-  loadFilenames(directory, filenames)
+  loadFilenames(filenames, cwd)
 
   return {
     findMatches(...args) {
@@ -34,7 +31,7 @@ export async function FilenameStore(
 
     writeToFile() {
       const debugFilename = `filenames_${Date.now()}`
-      const debugFilePath = vscode.Uri.joinPath(directory, debugFilename).fsPath
+      const debugFilePath = join(cwd, debugFilename)
       const filenamesData = filenames
         .entries()
         .map(([filename]) => filename)
@@ -47,18 +44,19 @@ export async function FilenameStore(
 
     dispose() {
       filenameWatcher.dispose()
+      filenames.clear()
     },
   }
 }
 
 async function setupFilenameWatcher(
-  directory: vscode.Uri,
-  gitDirectory: vscode.Uri,
   filenames: FilenameTrie,
+  gitDir: string,
+  cwd: string,
 ): Promise<vscode.FileSystemWatcher> {
-  const initialCommit = await git("rev-parse", ["HEAD"], { directory })
+  const initialCommit = await git("rev-parse", ["HEAD"], { cwd })
 
-  const dir = vscode.Uri.joinPath(gitDirectory, "refs")
+  const dir = join(gitDir, "refs")
   const pattern = new vscode.RelativePattern(dir, "**/*")
   const watcher = vscode.workspace.createFileSystemWatcher(pattern)
 
@@ -70,17 +68,13 @@ async function setupFilenameWatcher(
     const content = await vscode.workspace.fs.readFile(uri)
     const commit = content.toString().trim()
 
-    loadFilenames(directory, filenames, `${initialCommit}..${commit}`)
+    loadFilenames(filenames, cwd, `${initialCommit}..${commit}`)
   })
 
   return watcher
 }
 
-function loadFilenames(
-  directory: vscode.Uri,
-  filenames: FilenameTrie,
-  range?: string,
-) {
+function loadFilenames(filenames: FilenameTrie, cwd: string, range?: string) {
   let args = [
     "--name-only",
     "--no-renames",
@@ -91,7 +85,7 @@ function loadFilenames(
 
   args = range === undefined ? ["--all", ...args] : [range, ...args]
 
-  streamCommand("git", ["log", ...args], directory, (filename) => {
+  streamCommand("git", ["log", ...args], cwd, (filename) => {
     filenames.set(filename, null)
   })
 }

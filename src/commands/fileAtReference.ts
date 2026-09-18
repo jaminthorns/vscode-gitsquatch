@@ -23,7 +23,7 @@ export async function fileAtReference(
     return
   }
 
-  const currentBranch = await getCurrentBranch(repository)
+  const currentBranch = await getCurrentBranch(repository.directory.fsPath)
 
   const currentBranchItems = []
   const localBranchItems = referenceItems(
@@ -69,10 +69,8 @@ export async function fileAtReference(
   })
 }
 
-async function getCurrentBranch(repository: Repository) {
-  return await git("branch", ["--show-current"], {
-    directory: repository.directory,
-  })
+async function getCurrentBranch(cwd: string) {
+  return await git("branch", ["--show-current"], { cwd })
 }
 
 function referenceItems(
@@ -81,6 +79,7 @@ function referenceItems(
   uri: vscode.Uri,
   repository: Repository,
 ): SelectableQuickPickItem[] {
+  const cwd = repository.directory.fsPath
   const filename = vscode.workspace.asRelativePath(uri, false)
   const { icon, label } = referenceInfo[type]
 
@@ -97,8 +96,8 @@ function referenceItems(
         editor: {
           tooltip: `Open File at ${label} (Editor)`,
           onSelected: async () => {
-            const commit = await Commit(reference, repository.directory)
-            const uri = relativeGitUri(filename, commit, repository.directory)
+            const commit = await Commit(reference, cwd)
+            const uri = relativeGitUri(filename, commit, cwd)
 
             vscode.commands.executeCommand("vscode.open", uri, {}, fileLabel)
           },
@@ -106,7 +105,7 @@ function referenceItems(
         terminal: {
           tooltip: `Open File at ${label} (Terminal)`,
           onSelected: async () => {
-            const commit = await Commit(reference, repository.directory)
+            const commit = await Commit(reference, cwd)
 
             runCommandInTerminal({
               name: fileLabel,

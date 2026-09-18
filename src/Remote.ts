@@ -1,4 +1,3 @@
-import * as vscode from "vscode"
 import { git } from "./util/git"
 
 type Server =
@@ -14,9 +13,9 @@ export interface Remote {
 
 export async function Remote(
   name: string,
-  directory: vscode.Uri,
+  cwd: string,
 ): Promise<Remote | null> {
-  const urlRaw = await git("remote", ["get-url", name], { directory })
+  const urlRaw = await git("remote", ["get-url", name], { cwd })
 
   const sshPattern =
     /^(?!http)(?:ssh:\/\/)?(?:(?<user>.+)@)?(?<host>.+):(?<path>.*)$/

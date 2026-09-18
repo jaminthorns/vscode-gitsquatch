@@ -36,12 +36,14 @@ export async function lineHistory(
     const translators = await Promise.all([
       // Working Tree -> Document
       LineTranslator.fromDiff(["--no-index", "--", filename, "-"], {
-        directory,
+        cwd: directory.fsPath,
         stdin: document.getText(),
         ignoreNonZeroExitCode: true,
       }),
       // HEAD -> Working Tree
-      LineTranslator.fromDiff(["HEAD", "--", filename], { directory }),
+      LineTranslator.fromDiff(["HEAD", "--", filename], {
+        cwd: directory.fsPath,
+      }),
     ])
 
     documentRanges = oldRanges(ranges, translators, "newly added")
@@ -61,7 +63,7 @@ export async function lineHistory(
   const label = `${basename(filename)}:${rangeSuffix}`
 
   runCommandInTerminal({
-    name: await suffixWithRevision(label, revision, directory),
+    name: await suffixWithRevision(label, revision, directory.fsPath),
     icon: "history",
     cwd: directory,
     command: userGitCommand({
@@ -70,7 +72,7 @@ export async function lineHistory(
     }),
     context: {
       filename,
-      commitFilenames: commitFilenames(revision, filename, directory),
+      commitFilenames: commitFilenames(revision, filename, directory.fsPath),
     },
   })
 }

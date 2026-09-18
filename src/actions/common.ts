@@ -1,3 +1,4 @@
+import { join } from "path"
 import * as vscode from "vscode"
 import { Commit } from "../Commit"
 import { SelectableQuickPickItem } from "../quickPick"
@@ -8,15 +9,15 @@ import { git } from "../util/git"
 export function relativeGitUri(
   filename: string,
   commit: Commit | null,
-  directory: vscode.Uri,
+  cwd: string,
 ): vscode.Uri {
-  const uri = vscode.Uri.joinPath(directory, filename)
+  const path = join(cwd, filename)
   const ref = commit?.full ?? "0000000000000000000000000000000000000000"
 
   return vscode.Uri.from({
     scheme: "git",
-    path: uri.path,
-    query: JSON.stringify({ path: uri.fsPath, ref }),
+    path,
+    query: JSON.stringify({ path, ref }),
   })
 }
 
@@ -34,7 +35,7 @@ export async function commitRemotes(
   // becomes noticeably slow in repositories with long history and many remote
   // branches.
   const args = ["-r", "--contains", commit.full]
-  const output = await git("branch", args, { directory: repository.directory })
+  const output = await git("branch", args, { cwd: repository.directory.fsPath })
   const branches = output.split("\n").map((b) => b.trim())
 
   return remoteProviders.filter(({ remote }) => {
@@ -90,43 +91,43 @@ export async function openDiffInEditor(
   title: string,
   repository: Repository,
 ) {
-  const { directory } = repository
+  const cwd = repository.directory.fsPath
 
-  const nameStatuses = await diffNameStatuses(fromCommit, toCommit, directory)
+  const nameStatuses = await diffNameStatuses(fromCommit, toCommit, cwd)
 
   const resources = nameStatuses.map((ns) => {
     switch (ns.status) {
       case "A":
         return {
           originalUri: undefined,
-          modifiedUri: relativeGitUri(ns.filename, toCommit, directory),
+          modifiedUri: relativeGitUri(ns.filename, toCommit, cwd),
         }
 
       case "M":
         return {
-          originalUri: relativeGitUri(ns.filename, fromCommit, directory),
-          modifiedUri: relativeGitUri(ns.filename, toCommit, directory),
+          originalUri: relativeGitUri(ns.filename, fromCommit, cwd),
+          modifiedUri: relativeGitUri(ns.filename, toCommit, cwd),
         }
 
       case "D":
         return {
-          originalUri: relativeGitUri(ns.filename, fromCommit, directory),
+          originalUri: relativeGitUri(ns.filename, fromCommit, cwd),
           modifiedUri: undefined,
         }
 
       case "R":
         return {
-          originalUri: relativeGitUri(ns.fromFilename, fromCommit, directory),
-          modifiedUri: relativeGitUri(ns.filename, toCommit, directory),
+          originalUri: relativeGitUri(ns.fromFilename, fromCommit, cwd),
+          modifiedUri: relativeGitUri(ns.filename, toCommit, cwd),
         }
     }
   })
 
   const multiDiffSourceUri = vscode.Uri.from({
     scheme: "git-commit",
-    path: directory.path,
+    path: cwd,
     query: JSON.stringify({
-      path: directory.fsPath,
+      path: cwd,
       ref: toCommit.full,
     }),
   })
@@ -152,7 +153,7 @@ type DiffNameStatus =
 export async function diffNameStatuses(
   fromCommit: Commit | null,
   toCommit: Commit,
-  directory: vscode.Uri,
+  cwd: string,
 ): Promise<DiffNameStatus[]> {
   const commits =
     fromCommit === null ? [toCommit.full] : [fromCommit.full, toCommit.full]
@@ -167,7 +168,7 @@ export async function diffNameStatuses(
     ...commits,
   ]
 
-  const output = await git("diff-tree", args, { directory })
+  const output = await git("diff-tree", args, { cwd })
   const lines = output.split("\n").map((line) => line.split("\t"))
 
   return lines.map(([status, ...filenames]): DiffNameStatus => {
@@ -190,7 +191,7 @@ export async function diffNameStatuses(
 
 export async function firstParentCommit(
   revision: string,
-  directory: vscode.Uri,
+  cwd: string,
 ): Promise<Commit | null> {
-  return await Commit(`${revision}^`, directory)
+  return await Commit(`${revision}^`, cwd)
 }

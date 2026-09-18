@@ -30,8 +30,7 @@ export function uriHandler(repositories: RepositoryStore): vscode.Disposable {
         return
       }
 
-      const { directory } = repository
-      const commit = await Commit(ref, directory)
+      const commit = await Commit(ref, repository.directory.fsPath)
 
       if (commit === null) {
         return

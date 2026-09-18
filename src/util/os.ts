@@ -1,9 +1,8 @@
 import { spawn } from "child_process"
 import { createInterface } from "readline"
-import * as vscode from "vscode"
 
 export interface CommandOptions {
-  directory?: vscode.Uri
+  cwd?: string
   stdin?: string
   ignoreNonZeroExitCode?: boolean
 }
@@ -16,7 +15,7 @@ export async function runCommand(
   return new Promise((resolve, reject) => {
     const stdoutData: Uint8Array[] = []
     const stderrData: Uint8Array[] = []
-    const process = spawn(command, args, { cwd: options.directory?.fsPath })
+    const process = spawn(command, args, { cwd: options.cwd })
 
     if (options.stdin !== undefined) {
       process.stdin.end(options.stdin)
@@ -40,10 +39,10 @@ export async function runCommand(
 export function streamCommand(
   command: string,
   args: string[],
-  directory: vscode.Uri | undefined,
+  cwd: string | undefined,
   onLineOutput: (output: string) => unknown,
 ) {
-  const process = spawn(command, args, { cwd: directory?.fsPath })
+  const process = spawn(command, args, { cwd })
   const readline = createInterface({ input: process.stdout, terminal: false })
 
   readline.on("line", onLineOutput)

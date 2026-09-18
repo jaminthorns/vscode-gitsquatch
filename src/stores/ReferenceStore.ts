@@ -1,5 +1,5 @@
 import { writeFile } from "fs"
-import { relative } from "path"
+import { join, relative } from "path"
 import * as vscode from "vscode"
 import {
   ReferenceType,
@@ -19,33 +19,28 @@ export interface ReferenceStore extends vscode.Disposable {
   writeToFile(): void
 }
 
-export function createReferenceStore({
+export function ReferenceStore({
   type,
   gitSubcommand,
   gitArgs,
   debugFilePrefix,
   debugMessageLabel,
-  directory,
-  gitDirectory,
+  gitDir,
+  cwd,
 }: {
   type: ReferenceType
   gitSubcommand: string
   gitArgs: string[]
   debugFilePrefix: string
   debugMessageLabel: string
-  directory: vscode.Uri
-  gitDirectory: vscode.Uri
+  gitDir: string
+  cwd: string
 }): ReferenceStore {
   const references: ReferenceTrie = Trie()
 
-  const referencesWatcher = setupReferenceWatcher(
-    type,
-    directory,
-    gitDirectory,
-    references,
-  )
+  const referencesWatcher = setupReferenceWatcher(type, references, gitDir, cwd)
 
-  loadReferences(directory, references, gitSubcommand, gitArgs)
+  loadReferences(references, gitSubcommand, gitArgs, cwd)
 
   return {
     findMatches(...args) {
@@ -58,7 +53,7 @@ export function createReferenceStore({
 
     writeToFile() {
       const debugFilename = `${debugFilePrefix}_${Date.now()}`
-      const debugFilePath = vscode.Uri.joinPath(directory, debugFilename).fsPath
+      const debugFilePath = join(cwd, debugFilename)
       const referencesData = references
         .entries()
         .map(([reference]) => reference)
@@ -80,12 +75,12 @@ export function createReferenceStore({
 // Solution: Read the reflog! (credit to Claude for idea)
 export function setupReferenceWatcher(
   type: ReferenceType,
-  directory: vscode.Uri,
-  gitDirectory: vscode.Uri,
   references: ReferenceTrie,
+  gitDir: string,
+  cwd: string,
 ): vscode.FileSystemWatcher {
   const refDir = referenceInfo[type].directory
-  const refsDir = vscode.Uri.joinPath(gitDirectory, "refs", refDir)
+  const refsDir = join(gitDir, "refs", refDir)
   const pattern = new vscode.RelativePattern(refsDir, "**/*")
   const watcher = vscode.workspace.createFileSystemWatcher(pattern)
 
@@ -94,7 +89,7 @@ export function setupReferenceWatcher(
       return
     }
 
-    const ref = relative(refsDir.fsPath, uri.fsPath)
+    const ref = relative(refsDir, uri.fsPath)
 
     references.set(ref, null)
   })
@@ -105,11 +100,11 @@ export function setupReferenceWatcher(
       return
     }
 
-    const refOrDir = relative(refsDir.fsPath, uri.fsPath)
+    const refOrDir = relative(refsDir, uri.fsPath)
 
     references.entries(refOrDir).forEach(async ([ref]) => {
       // Valid references get deleted when being packed.
-      if (await referenceValid(ref, type, directory)) {
+      if (await referenceValid(ref, type, cwd)) {
         return
       }
 
@@ -121,12 +116,12 @@ export function setupReferenceWatcher(
 }
 
 export function loadReferences(
-  directory: vscode.Uri,
   references: ReferenceTrie,
   gitSubcommand: string,
   gitArgs: string[],
+  cwd: string,
 ) {
-  streamCommand("git", [gitSubcommand, ...gitArgs], directory, (ref) => {
+  streamCommand("git", [gitSubcommand, ...gitArgs], cwd, (ref) => {
     references.set(ref, null)
   })
 }

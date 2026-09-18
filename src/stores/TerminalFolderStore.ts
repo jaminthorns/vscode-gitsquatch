@@ -2,7 +2,7 @@ import { lookpath } from "lookpath"
 import * as vscode from "vscode"
 import { runCommand } from "../util/os"
 
-export interface TerminalFolderStore {
+export interface TerminalFolderStore extends vscode.Disposable {
   addFolder(terminal: vscode.Terminal): Promise<void>
   removeFolder(terminal: vscode.Terminal): Promise<void>
   getFolder(
@@ -67,6 +67,10 @@ export function TerminalFolderStore(): TerminalFolderStore {
       if (processId) {
         return workspaceFolders.get(processId)
       }
+    },
+
+    dispose() {
+      workspaceFolders.clear()
     },
   }
 }

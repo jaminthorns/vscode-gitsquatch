@@ -43,11 +43,11 @@ export function ignoreReferenceFile(uri: vscode.Uri): boolean {
 export async function referenceValid(
   ref: string,
   type: ReferenceType,
-  directory: vscode.Uri,
+  cwd: string,
 ): Promise<boolean> {
   try {
     const refDir = referenceInfo[type].directory
-    await git("show-ref", ["--verify", `refs/${refDir}/${ref}`], { directory })
+    await git("show-ref", ["--verify", `refs/${refDir}/${ref}`], { cwd })
 
     return true
   } catch (error) {

@@ -29,7 +29,7 @@ export const CommitLinkMatcher: LinkMatcher<{ commit: Commit }> = {
       await Promise.all(
         lineMatches.map(async (match) => {
           const [rawCommit] = match
-          const commit = await Commit(rawCommit, repository.directory)
+          const commit = await Commit(rawCommit, repository.directory.fsPath)
 
           if (
             commit === null ||

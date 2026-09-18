@@ -57,7 +57,7 @@ export function showFileActions(
             commitFilenames: commitFilenames(
               "HEAD",
               filename,
-              repository.directory,
+              repository.directory.fsPath,
             ),
           },
         })

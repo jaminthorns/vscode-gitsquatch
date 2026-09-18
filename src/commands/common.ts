@@ -5,13 +5,13 @@ import { LineRange, LineTranslator } from "../LineTranslator"
 export async function suffixWithRevision(
   label: string,
   revision: string,
-  directory: vscode.Uri,
+  cwd: string,
 ): Promise<string> {
   if (revision === "HEAD") {
     return label
   }
 
-  const commit = await Commit(revision, directory)
+  const commit = await Commit(revision, cwd)
 
   if (commit === null) {
     return label

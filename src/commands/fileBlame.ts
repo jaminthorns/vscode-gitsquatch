@@ -25,7 +25,7 @@ export async function fileBlame(
   const label = basename(filename)
 
   runCommandInTerminal({
-    name: await suffixWithRevision(label, revision, directory),
+    name: await suffixWithRevision(label, revision, directory.fsPath),
     icon: "person",
     cwd: directory,
     command: userGitCommand({
@@ -38,7 +38,7 @@ export async function fileBlame(
     }),
     context: {
       filename,
-      commitFilenames: commitFilenames(revision, filename, directory),
+      commitFilenames: commitFilenames(revision, filename, directory.fsPath),
     },
   })
 }

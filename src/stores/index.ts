@@ -1,4 +1,4 @@
-export { ReferenceStore } from "./createReferenceStore"
+export { ReferenceStore } from "./ReferenceStore"
 export { FilenameStore } from "./FilenameStore"
 export { LocalBranchStore } from "./LocalBranchStore"
 export { RemoteBranchStore } from "./RemoteBranchStore"
