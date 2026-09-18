@@ -22,7 +22,14 @@ import { uriHandler } from "./uriHandler"
 import { filterAsync } from "./util/general"
 import { git } from "./util/git"
 
-export async function activate(context: vscode.ExtensionContext) {
+export interface GitSquatchApi {
+  deactivate(): void
+  repositories: RepositoryStore
+}
+
+export async function activate(
+  context: vscode.ExtensionContext,
+): Promise<GitSquatchApi | undefined> {
   const { workspaceFolders } = vscode.workspace
 
   if (workspaceFolders === undefined) {
@@ -32,7 +39,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const repositories = await setupRepositories(workspaceFolders)
   const terminalFolders = setupTerminalFolders()
 
-  context.subscriptions.push(
+  const disposables = [
     // Commands
     folderHistoryCommand(repositories),
     fileHistoryCommand(repositories),
@@ -57,7 +64,23 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // Definition providers
     fileAtCommitLineProvider(repositories),
-  )
+
+    // Stores
+    repositories,
+    terminalFolders,
+  ]
+
+  context.subscriptions.push(...disposables)
+
+  return {
+    deactivate() {
+      disposables.forEach((disposable) => {
+        disposable.dispose()
+      })
+    },
+
+    repositories,
+  }
 }
 
 async function setupRepositories(
@@ -71,12 +94,14 @@ async function setupRepositories(
       filterAsync(removed, inRepository),
     ])
 
-    addedWithRepo.forEach(repositories.addRepository)
-    removedWithRepo.forEach(repositories.removeRepository)
+    await Promise.all([
+      ...addedWithRepo.map(repositories.addRepository),
+      ...removedWithRepo.map(repositories.removeRepository),
+    ])
   })
 
   const foldersWithRepo = await filterAsync(workspaceFolders, inRepository)
-  foldersWithRepo.forEach(repositories.addRepository)
+  await Promise.all(foldersWithRepo.map(repositories.addRepository))
 
   return repositories
 }
