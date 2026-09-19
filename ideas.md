@@ -153,7 +153,7 @@ Alternatively, we could use a less reliable but more "static" approach:
 This doesn't cover terminals created by the user when there is more than 1
 workspace.
 
-# Editor Title Buttons per File in Commit Editors 🤔
+## Editor Title Buttons per File in Commit Editors 🤔
 
 In commit editors, we can add buttons using the `multiDiffEditor/resource/title`
 menu contribution point. This could be used to open a menu per file or put some
@@ -162,7 +162,7 @@ relevant actions.
 I'd like for this to be a ❗, but it's currently only a proposed API, available
 by enabling `contribMultiDiffEditorMenus`.
 
-# Consolidate file/folder history and support multiple selections ❗
+## Consolidate file/folder history and support multiple selections ❗
 
 It would be nice if you could select multiple explorer items and get their
 history. This would require consolidating the File History and Folder History
@@ -170,14 +170,14 @@ commands, probably into something called "Path History". By default, they have
 different use cases (File History shows patches, Folder History shows stats),
 but in my own setup, I made them the same, so it probably doesn't matter.
 
-# Open commit message in editor 🤔
+## Open commit message in editor 🤔
 
 Long commit messages aren't able to be viewed in a dedicated place (only in
 blame and timeline/graph item hovers). It would be nice if the alternative
 option for copying a commit message could be to open it in an editor. Maybe make
 viewing it in an editor the default with copying it as the alternative option?
 
-# More general string search command 🤔
+## More general string search command 🤔
 
 Currently, only searching a string from a selection in a tracked file is
 supported. This is partially due to the fact that it makes selecting a
@@ -192,4 +192,5 @@ could:
 Both of these would require choosing a repository somehow when we don't have a
 document URI to go off of. I suppose we could either guess (though there's
 nothing to go off of for unsaved files or input box entry) or let the user pick
-a repository.
+a repository. If there's just 1 repository, we could use it automatically, and
+otherwise let the user choose with a repository picker.
