@@ -83,6 +83,12 @@ export async function activate(
   }
 }
 
+// TODO: Add watchers to monitor for Git repos
+//
+// A workspace folder can transition from not being a Git repo to being a Git
+// repo (git init) and vice versa (though this probably happens a lot less). A
+// filesystem watcher should be set up for each workspace folder to account for
+// this.
 async function setupRepositories(
   workspaceFolders: readonly vscode.WorkspaceFolder[],
 ): Promise<RepositoryStore> {
