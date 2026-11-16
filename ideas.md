@@ -194,3 +194,8 @@ document URI to go off of. I suppose we could either guess (though there's
 nothing to go off of for unsaved files or input box entry) or let the user pick
 a repository. If there's just 1 repository, we could use it automatically, and
 otherwise let the user choose with a repository picker.
+
+## URI to open commit actions 🤔
+
+If we had a URI to open commit actions, you could programmatically open commits
+from a terminal application.
